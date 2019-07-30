@@ -1,0 +1,33 @@
+.error-page {
+  height: 100%;
+  .top {
+    height: 65%;
+    background: @color-background;
+  }
+  .page-404 {
+    background: url(../image/404.png) no-repeat center;
+  }
+  .page-500 {
+    background: url(../image/500.png) no-repeat center;
+  }
+  .bottom {
+    height: 35%;
+    background: @color-content;
+    color: #fff;
+    text-align: center;
+    .title {
+      height: 5rem;
+      line-height: 5rem;
+      font-size: 2rem;
+    }
+    .description {
+      font-size: 1rem;
+    }
+    .home-btn,
+    .back-btn {
+      width: 9.375rem;
+      margin-top: 3.125rem;
+      font-size: 1rem;
+    }
+  }
+}

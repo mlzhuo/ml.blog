@@ -1,0 +1,80 @@
+.home {
+  .left {
+    flex: 1;
+    height: 100%;
+    background: @color-content;
+    padding: 1rem 0.5rem;
+    box-sizing: border-box;
+    position: relative;
+    .menu-icon {
+      position: absolute;
+      right: 0.625rem;
+      top: 0.625rem;
+      cursor: pointer;
+    }
+    .user-photo {
+      height: 6.25rem;
+      text-align: center;
+      img {
+        width: 6.25rem;
+      }
+    }
+    .nickname,
+    .gender,
+    .signature {
+      text-align: center;
+      color: #fff;
+    }
+    .nickname {
+      font-weight: bold;
+      font-size: 1rem;
+      margin-top: 1rem;
+    }
+    .gender {
+      margin-top: 1rem;
+    }
+    .signature {
+      margin-top: 0.5rem;
+    }
+    .search {
+      width: 100%;
+      position: relative;
+      margin-top: 1.5rem;
+      .search-input {
+        background-color: @color-content;
+        border: none;
+        height: 1.5625rem;
+        width: 100%;
+        line-height: 2.1875rem;
+        color: #fff;
+        font-size: 0.875rem;
+        border-bottom: 1px solid #aaa;
+        &:focus {
+          border-bottom: 1px solid #fff;
+        }
+      }
+      .search-icon {
+        position: absolute;
+        width: 1.5625rem;
+        height: 1.5625rem;
+        line-height: 1.5625rem;
+        right: 0;
+        top: 0;
+        text-align: center;
+        cursor: pointer;
+      }
+    }
+    .category {
+      overflow-x: hidden;
+      overflow-y: scroll;
+    }
+  }
+  .right {
+    flex: 3;
+    height: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
+    overflow-y: auto;
+    border-right: 1px solid @color-border;
+  }
+}

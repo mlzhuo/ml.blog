@@ -1,0 +1,60 @@
+.content-list {
+  position: relative;
+  height: 100%;
+  ul {
+    li {
+      padding: 1rem 1rem 0;
+      box-sizing: border-box;
+      background: #fff;
+      margin-bottom: 2px;
+      .title {
+        font-size: 1rem;
+        font-weight: bold;
+        color: @color-content;
+        &:hover {
+          text-decoration: underline;
+          color: @color-title;
+        }
+      }
+      .info {
+        margin-top: 0.5rem;
+        position: relative;
+        .date {
+          position: absolute;
+          right: 0;
+          top: 50%;
+          transform: translateY(-50%);
+          color: @color-sub;
+        }
+        .tag-btn {
+          border-radius: 15px;
+          padding: 0 0.625rem;
+          margin-right: 0.625rem;
+          color: @color-sub;
+          &:focus {
+            box-shadow: none;
+          }
+        }
+      }
+      .details {
+        margin-top: 0.5rem;
+        color: @color-content;
+        text-align: justify;
+        font-size: 0.875rem;
+      }
+      .operation {
+        margin-top: 0.625rem;
+        color: @color-sub;
+        span {
+          margin-right: 0.625rem;
+        }
+      }
+    }
+  }
+  .nothing {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+}
