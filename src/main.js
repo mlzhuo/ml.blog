@@ -7,11 +7,8 @@ import iView from 'iview';
 import App from './App';
 import router from './router';
 import store from './store';
-import 'iview/dist/styles/iview.css';
-import "quill/dist/quill.core.css";
-import "quill/dist/quill.snow.css";
-import "quill/dist/quill.bubble.css";
 import './assets/less/index.less';
+import conf from './config'
 import { SAVE_TOKEN, SAVE_USER_INFO } from './store/mutationTypes';
 Vue.config.productionTip = false;
 Vue.prototype.$axios = axios;
@@ -27,11 +24,7 @@ if (_id) {
   store.commit({ type: SAVE_USER_INFO, user_id: _id });
 }
 
-axios.defaults.baseURL = 'http://api.myserver.net.cn:3002/'
-// axios.defaults.baseURL =
-//   process.env.NODE_ENV == 'development'
-//     ? 'http://localhost:3000/'
-//     : 'http://myserver.net.cn/';
+axios.defaults.baseURL = conf.apiGateway
 axios.defaults.timeout = 10000;
 axios.defaults.headers.post['Content-Type'] =
   'application/x-www-form-urlencoded;charset=UTF-8';

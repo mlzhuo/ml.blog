@@ -3,7 +3,7 @@
     <div class="add-header">
       <Form :model="blogForm">
         <FormItem>
-          <Input v-model="blogForm.title" placeholder="博客标题" class="title"/>
+          <Input v-model="blogForm.title" placeholder="博客标题" class="title" />
         </FormItem>
         <FormItem>
           <Select
@@ -54,6 +54,7 @@ import { quillEditor, Quill } from "vue-quill-editor";
 import { container, ImageExtend, QuillWatch } from "quill-image-extend-module";
 Quill.register("modules/ImageExtend", ImageExtend);
 import { getCategory, insertBlog } from "@/api";
+import conf from "@/config";
 export default {
   data() {
     return {
@@ -62,7 +63,7 @@ export default {
           ImageExtend: {
             loading: true,
             name: "img",
-            action: "http://localhost:3000/api/upload",
+            action: conf.apiGateway + "/upload",
             headers: xhr => {
               const token = this.$store.state.user.token;
               xhr.setRequestHeader("Authorization", `Bearer ${token}`);
@@ -146,7 +147,7 @@ export default {
     },
     addBlog(state) {
       const { title, category_id, content, tag_id } = this.blogForm;
-      if (!title || !category_id || !content || !tag_id) {
+      if (!title || !content) {
         this.$Notice.error({ title: "请检查输入内容" });
         return;
       }
