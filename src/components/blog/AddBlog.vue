@@ -3,32 +3,50 @@
     <div class="add-header">
       <Form :model="blogForm">
         <FormItem>
-          <Input v-model="blogForm.title" placeholder="博客标题" class="title" />
+          <Input
+            v-model="blogForm.title"
+            placeholder="博客标题"
+            class="title"
+          />
         </FormItem>
         <FormItem>
-          <Select
-            v-model="blogForm.category_id"
-            clearable
-            filterable
-            placeholder="分类"
-            class="select"
-            @on-change="categoryHandleChange"
-            @on-clear="categoryClear"
-          >
-            <Option
-              v-for="category in categoryArr"
-              :key="category._id"
-              :value="category._id"
-              :label="category.name"
-            ></Option>
-          </Select>
-          <Select v-model="blogForm.tag_id" clearable filterable placeholder="标签" class="select">
-            <Option v-for="tag in tagArr" :key="tag._id" :value="tag._id" :label="tag.name"></Option>
-          </Select>
-          <i-switch v-model="blogForm.is_secret" size="large" class="switch">
-            <span slot="open">私密</span>
-            <span slot="close">公开</span>
-          </i-switch>
+          <div class="inline-inputs">
+            <Select
+              v-model="blogForm.category_id"
+              clearable
+              filterable
+              placeholder="分类"
+              class="select"
+              @on-change="categoryHandleChange"
+              @on-clear="categoryClear"
+            >
+              <Option
+                v-for="category in categoryArr"
+                :key="category._id"
+                :value="category._id"
+                :label="category.name"
+              ></Option>
+            </Select>
+            <Select
+              v-model="blogForm.tag_id"
+              clearable
+              filterable
+              placeholder="标签"
+              class="select"
+            >
+              <Option
+                v-for="tag in tagArr"
+                :key="tag._id"
+                :value="tag._id"
+                :label="tag.name"
+              ></Option>
+            </Select>
+            <Input
+              v-model="blogForm.custom_tag"
+              placeholder="自定义标签，多个标签用逗号分开"
+              class="custom-tag"
+            />
+          </div>
         </FormItem>
       </Form>
     </div>
@@ -108,7 +126,8 @@ export default {
         category_id: "",
         tag_id: "",
         is_secret: false,
-        content: ""
+        content: "",
+        custom_tag: ""
       }
     };
   },
@@ -147,7 +166,7 @@ export default {
     },
     addBlog(state) {
       const { title, category_id, content, tag_id } = this.blogForm;
-      if (!title || !content) {
+      if (!title || !content || !category_id || !tag_id) {
         this.$Notice.error({ title: "请检查输入内容" });
         return;
       }
@@ -197,5 +216,4 @@ export default {
 };
 </script>
 
-<style>
-</style>
+<style></style>

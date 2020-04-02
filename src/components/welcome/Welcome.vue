@@ -5,8 +5,12 @@
       <p class="title" v-text="title"></p>
       <p class="description" v-text="description"></p>
       <p class="operation">
-        <Button class="regist-btn" type="primary" @click="showRegisModal">注 册</Button>
-        <Button class="login-btn" type="primary" @click="showLoginModal">登 录</Button>
+        <Button class="regist-btn" type="primary" @click="showRegisModal"
+          >注 册</Button
+        >
+        <Button class="login-btn" type="primary" @click="showLoginModal"
+          >登 录</Button
+        >
       </p>
     </div>
     <Modal
@@ -39,7 +43,9 @@
             />
           </FormItem>
           <FormItem>
-            <Checkbox v-model="remember" style="margin-top: 1rem">下次自动登录</Checkbox>
+            <Checkbox v-model="remember" style="margin-top: 1rem"
+              >下次自动登录</Checkbox
+            >
           </FormItem>
           <FormItem>
             <Button
@@ -49,7 +55,8 @@
               :loading="loading"
               @click="handleSubmit('loginForm')"
               style="margin-top: 3rem"
-            >{{loginBtnText}}</Button>
+              >{{ loginBtnText }}</Button
+            >
           </FormItem>
         </Form>
       </div>
@@ -102,7 +109,8 @@
               :loading="loading"
               @click="handleSubmit('registForm')"
               style="margin-top: 3rem"
-            >{{registBtnText}}</Button>
+              >{{ registBtnText }}</Button
+            >
           </FormItem>
         </Form>
       </div>
@@ -112,9 +120,14 @@
 </template>
 
 <script>
-import md5 from "md5";
-import { SAVE_USER_INFO, SAVE_TOKEN } from "@/store/mutationTypes";
-import { Login, Register, insertLog } from "@/api";
+import { mapActions, mapMutations } from "vuex";
+import {
+  LOGIN,
+  REGISTER,
+  SAVE_USER_INFO,
+  SAVE_TOKEN
+} from "@/store/mutationTypes";
+import { Login, Register } from "@/api";
 import {
   LOGIN_ERROR,
   REGISTER_ERROR,
@@ -223,11 +236,9 @@ export default {
           this.loading = true;
           switch (name) {
             case "loginForm":
-              this.loginBtnText = "登 录 中";
               this.login(this.loginForm);
               break;
             case "registForm":
-              this.registBtnText = "注 册 中";
               this.register();
               break;
             default:
@@ -236,56 +247,51 @@ export default {
         }
       });
     },
+    ...mapActions([REGISTER, LOGIN]),
     login(data) {
       const { username, password } = data;
-      Login({ username, password: md5(password) })
-        .then(result => {
-          if (result.state) {
-            const { _id, token } = result.data;
-            localStorage.setItem("token", token);
-            localStorage.setItem("_id", _id);
-            this.$store.commit({ type: SAVE_USER_INFO, user_id: _id });
-            this.$store.commit({ type: SAVE_TOKEN, token });
-            this.isShowLoginModal = false;
-            this.$Notice.success({ title: result.message });
-            this.$router.replace({ path: `/${_id}` });
-            insertLog({ user_id: _id, type: 0 });
-          } else {
-            this.$Notice.error({ title: result.message });
-          }
-          this.loading = false;
-          this.loginBtnText = "登 录";
-        })
-        .catch(error => {
-          console.log(error);
-          this.$Notice.error({ title: LOGIN_ERROR });
-          this.loading = false;
-          this.loginBtnText = "登 录";
-        });
+      this.LOGIN({
+        username,
+        password,
+        onSuccess: this.loginSuccess,
+        onFailed: this.loginFailed,
+        onComplete: this.loginComplete
+      });
+    },
+    loginSuccess(result) {
+      const { _id, token } = result.data;
+      localStorage.setItem("token", token);
+      localStorage.setItem("_id", _id);
+      this.isShowLoginModal = false;
+      this.$Notice.success({ title: result.message });
+      this.$router.replace({ path: `/${_id}` });
+    },
+    loginFailed(result) {
+      this.$Notice.error({ title: result.message });
+    },
+    loginComplete() {
+      this.loading = false;
     },
     register() {
       const { username, password } = this.registForm;
-      Register({
+      this.REGISTER({
         username,
-        password: md5(password)
-      })
-        .then(result => {
-          if (result.state) {
-            this.login({ username, password });
-            this.$Notice.success({ title: result.message });
-            this.isShowRegistModal = false;
-          } else {
-            this.$Notice.error({ title: result.message });
-          }
-          this.loading = false;
-          this.registBtnText = "注 册";
-        })
-        .catch(error => {
-          console.log(error);
-          this.$Notice.error({ title: REGISTER_ERROR });
-          this.loading = false;
-          this.loginBtnText = "注 册";
-        });
+        password,
+        onSuccess: this.registerSuccess,
+        onFailed: this.registerFailed,
+        onComplete: this.registerComplete
+      });
+    },
+    registerSuccess(username, password, result) {
+      this.login({ username, password });
+      this.$Notice.success({ title: result.message });
+      this.isShowRegistModal = false;
+    },
+    registerFailed(result) {
+      this.$Notice.error({ title: result.message });
+    },
+    registerComplete() {
+      this.loading = false;
     }
   }
 };

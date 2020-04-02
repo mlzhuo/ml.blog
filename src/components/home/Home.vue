@@ -1,53 +1,52 @@
 <template>
   <div class="home layout">
     <div class="left">
-      <Dropdown trigger="click" placement="bottom-start" class="menu-icon" @on-click="dropdownItemClick">
+      <Dropdown
+        trigger="click"
+        placement="bottom-start"
+        class="menu-icon"
+        @on-click="dropdownItemClick"
+      >
         <a href="javascript:void(0)">
-          <Icon type="md-menu" color="#fff" size="25"/>
+          <Icon type="md-menu" color="#fff" size="25" />
         </a>
         <DropdownMenu slot="list">
           <DropdownItem name="add-blog">
-            <Icon type="md-create" size="14"/>&nbsp;写博客
-          </DropdownItem>
-          <DropdownItem name="secret-blog">
-            <Icon type="md-eye-off" size="14"/>&nbsp;私密日志
+            <Icon type="md-create" size="14" />&nbsp;写博客
           </DropdownItem>
           <DropdownItem name="draft-box">
-            <Icon type="md-folder" size="14"/>&nbsp;草稿箱
+            <Icon type="md-folder" size="14" />&nbsp;草稿箱
           </DropdownItem>
           <DropdownItem name="recycle-bin">
-            <Icon type="md-pint" size="14"/>&nbsp;回收站
+            <Icon type="md-pint" size="14" />&nbsp;回收站
           </DropdownItem>
           <DropdownItem name="setting" divided>
-            <Icon type="md-settings" size="14"/>&nbsp;设置项
-          </DropdownItem>
-          <DropdownItem name="question">
-            <Icon type="md-clipboard" size="14"/>&nbsp;反馈
+            <Icon type="md-settings" size="14" />&nbsp;设置项
           </DropdownItem>
           <DropdownItem name="exit">
-            <Icon type="md-log-out" size="14"/>&nbsp;退出
+            <Icon type="md-log-out" size="14" />&nbsp;退出
           </DropdownItem>
         </DropdownMenu>
       </Dropdown>
       <div class="info">
         <div class="user-photo">
-          <img src="../../assets/image/ml-blog.png" alt="头像">
+          <img src="../../assets/image/ml-blog.png" alt="头像" />
         </div>
-        <p class="nickname">{{userInfo.username || 'ML BLOG'}}</p>
+        <p class="nickname">{{ userInfo.username || "ML BLOG" }}</p>
         <p class="gender">
-          <span v-if="userInfo.gender===0">
-            <Icon type="md-male"/>&nbsp;&nbsp;&nbsp;
+          <span v-if="userInfo.gender === 0">
+            <Icon type="md-male" />&nbsp;&nbsp;&nbsp;
           </span>
-          <span v-else-if="userInfo.gender===0">
-            <Icon type="md-female"/>&nbsp;&nbsp;&nbsp;
+          <span v-else-if="userInfo.gender === 0">
+            <Icon type="md-female" />&nbsp;&nbsp;&nbsp;
           </span>
           <span>博客等级：Lv1</span>
         </p>
-        <p class="signature">{{userInfo.signature || '暂时没有签名'}}</p>
+        <p class="signature">{{ userInfo.signature || "" }}</p>
       </div>
       <div class="search">
-        <input placeholder="Enter text" class="search-input">
-        <Icon type="md-search" class="search-icon" size="20" color="#fff"/>
+        <!-- <input placeholder="Enter text" class="search-input" /> -->
+        <!-- <Icon type="md-search" class="search-icon" size="20" color="#fff" /> -->
       </div>
       <div class="category hide-scroll">
         <Menu
@@ -58,23 +57,28 @@
           @on-select="menuHandleSelect"
           @on-open-change="menuHandleOpen"
         >
-          <Submenu :name="item._id" v-for="item in userInfo.blog_category" :key="item._id">
+          <Submenu
+            :name="item._id"
+            v-for="item in userInfo.blog_category"
+            :key="item._id"
+          >
             <template slot="title">
-              <Icon type="ios-analytics"/>
-              {{item.name}}
+              <Icon type="ios-analytics" />
+              {{ item.name }}
             </template>
             <MenuItem
-              :name="item._id+'-'+ tag._id"
+              :name="item._id + '-' + tag._id"
               v-for="tag in item.blog_tag"
               :key="tag._id"
               :to="menuItemTo"
-            >{{tag.name}}</MenuItem>
+              >{{ tag.name }}</MenuItem
+            >
           </Submenu>
         </Menu>
       </div>
     </div>
     <div class="right scroll">
-      <router-view/>
+      <router-view />
     </div>
   </div>
 </template>
@@ -82,11 +86,16 @@
 <script>
 import {
   SAVE_USER_INFO,
+  SAVE_USER_ID,
   SAVE_TOKEN,
-  SAVE_BLOG_LIST
+  SAVE_BLOG_LIST,
+  GET_USER_BY_ID,
+  EXIT,
+  GET_BLOG
 } from "@/store/mutationTypes";
-import { getUserById, getBlog } from "@/api";
+import { getBlog } from "@/api";
 import { NEED_RE_LOGIN } from "@/constant";
+import { mapActions, mapMutations } from "vuex";
 export default {
   data() {
     return {
@@ -100,22 +109,29 @@ export default {
     this.blog({});
   },
   methods: {
+    ...mapActions([GET_USER_BY_ID, GET_BLOG]),
+    ...mapMutations([EXIT, SAVE_BLOG_LIST]),
     user() {
       const { user_id } = this.$route.params;
-      getUserById(user_id)
-        .then(result => {
-          if (result.state) {
-            this.userInfo = result.data;
-          }
-        })
-        .catch(error => {
-          console.log(error);
-          this.$Notice.error({ title: NEED_RE_LOGIN });
-          localStorage.clear();
-          this.$store.commit({ type: SAVE_USER_INFO, user_id: "" });
-          this.$store.commit({ type: SAVE_TOKEN, token: "" });
-          this.$router.replace({ path: `/welcome` });
-        });
+      const { userInfo } = this.$store.state.user;
+      if (Object.keys(userInfo).length) {
+        this.userInfo = userInfo;
+        return;
+      }
+      this.GET_USER_BY_ID({
+        user_id,
+        onSuccess: this.getUserByIdSuccess,
+        onFailed: this.getUserByIdFailed
+      });
+    },
+    getUserByIdSuccess(userInfo) {
+      this.userInfo = userInfo;
+    },
+    getUserByIdFailed() {
+      this.$Notice.error({ title: NEED_RE_LOGIN });
+      localStorage.clear();
+      // this.EXIT();
+      this.$router.replace({ path: `/welcome` });
     },
     dropdownItemClick(name) {
       const { user_id } = this.$route.params;
@@ -135,12 +151,11 @@ export default {
         case "question":
           break;
         case "exit":
-          sessionStorage.clear();
-          this.$store.commit({ type: SAVE_USER_INFO, user_id: "" });
-          this.$store.commit({ type: SAVE_TOKEN, token: "" });
+          this.EXIT();
+          localStorage.removeItem("token");
+          localStorage.removeItem("_id");
           this.$router.replace({ path: `/welcome` });
           break;
-
         default:
           break;
       }
@@ -162,16 +177,14 @@ export default {
       page = page || 1;
       pagesize = pagesize || 10;
       const { user_id } = this.$route.params;
-      getBlog({ user_id, category_id, tag_id, page, pagesize })
-        .then(result => {
-          if (result.state) {
-            this.$store.commit({ type: SAVE_BLOG_LIST, blogs: result.data });
-          }
-        })
-        .catch(err => {
-          console.log(err);
-        });
-    }
+      this.GET_BLOG({
+        user_id,
+        category_id,
+        tag_id,
+        page,
+        pagesize
+      });
+    },
   },
   computed: {
     menuItemTo: function() {
@@ -182,5 +195,4 @@ export default {
 };
 </script>
 
-<style>
-</style>
+<style></style>
