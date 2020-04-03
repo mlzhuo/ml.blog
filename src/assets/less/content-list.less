@@ -1,7 +1,7 @@
 .content-list {
   position: relative;
   height: 100%;
-  ul {
+  ul.blog-list {
     li {
       padding: 1rem 1rem 0;
       box-sizing: border-box;
@@ -50,12 +50,16 @@
       .operation {
         margin-top: 0.625rem;
         padding-bottom: 0.625rem;
-        color: @color-sub;
+        color: @color-disabled;
         span {
           margin-right: 0.625rem;
         }
       }
     }
+  }
+  .blog-pagination {
+    text-align: center;
+    margin: 1rem;
   }
   .nothing {
     position: absolute;

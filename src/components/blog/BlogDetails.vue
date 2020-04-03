@@ -4,20 +4,20 @@
       <p class="title" v-text="blog.title"></p>
       <p class="info">
         <Button type="text" size="small" class="no-hover">
-          <Icon type="md-contact" size="14"/>&nbsp;ML
+          <Icon type="md-contact" size="14" />&nbsp;ML
         </Button>
         <Button type="text" size="small" class="no-hover">
-          <Icon type="md-eye" size="14"/>&nbsp;1999
+          <Icon type="md-eye" size="14" />&nbsp;{{ blog.view }}
         </Button>
-        <Button type="text" size="small">
-          <Icon type="md-heart-outline" size="14"/>&nbsp;99
+        <Button type="text" size="small" @click="likeBlog">
+          <Icon type="md-heart-outline" size="14" />&nbsp;{{ blog.like }}
         </Button>
         <Button type="text" size="small" class="no-hover">
-          <Icon type="md-alarm" size="14"/>
-          &nbsp;{{blog.date}}
+          <Icon type="md-alarm" size="14" />
+          &nbsp;{{ formatDate(blog.date) }}
         </Button>
       </p>
-      <Divider/>
+      <Divider />
       <div class="details scroll">
         <div class="ql-container ql-snow">
           <div class="ql-editor" v-html="blog.content"></div>
@@ -31,22 +31,29 @@
           <Input
             v-model="formComment.comment"
             type="textarea"
-            :autosize="{minRows: 3}"
+            :autosize="{ minRows: 3 }"
             placeholder="Enter something..."
             class="comment-textarea"
           />
         </FormItem>
         <FormItem>
-          <Button type="primary" class="add-comment-btn" @click="addComment" size="small" long>发表评论</Button>
+          <Button
+            type="primary"
+            class="add-comment-btn"
+            @click="addComment"
+            size="small"
+            long
+            >发表评论</Button
+          >
         </FormItem>
       </Form>
-      <Divider/>
+      <Divider />
       <div class="comment-list">
         <ul>
           <li>
             <div class="item">
               <div class="photo">
-                <img src="../../assets/image/ml-blog.png" alt>
+                <img src="../../assets/image/ml-blog.png" alt />
               </div>
               <div class="comments">
                 <p class="user-date">
@@ -58,7 +65,7 @@
                 </div>
               </div>
             </div>
-            <Divider/>
+            <Divider />
           </li>
         </ul>
       </div>
@@ -67,7 +74,9 @@
 </template>
 
 <script>
-import { getBlogById } from "@/api";
+import { formatDateHours } from "@/utils";
+import { VIEW_BLOG, LIKE_BLOG, GET_BLOG_BY_ID } from "@/store/mutationTypes";
+import { mapActions } from "vuex";
 export default {
   data() {
     return {
@@ -78,21 +87,37 @@ export default {
     };
   },
   created() {
-    this.getBlog();
+    const { blog_id } = this.$route.params;
+    this.VIEW_BLOG({ blog_id });
+    this.getBlogById(blog_id);
   },
   methods: {
-    getBlog() {
-      const { blog_id } = this.$route.params;
-      getBlogById(blog_id)
-        .then(result => {
-          if (result.state) {
-            this.blog = result.data;
-          }
-        })
-        .catch(err => {
-          console.log(err);
-        });
+    ...mapActions([VIEW_BLOG, LIKE_BLOG, GET_BLOG_BY_ID]),
+    formatDate(str) {
+      return formatDateHours(new Date(str));
     },
+    getBlogById(blog_id) {
+      this.GET_BLOG_BY_ID({
+        blog_id,
+        onSuccess: this.getBlogByIdSuccess,
+        onFailed: this.getBlogByIdFailed
+      });
+    },
+    getBlogByIdSuccess(blog) {
+      this.blog = blog;
+    },
+    getBlogByIdFailed(result) {},
+    likeBlog() {
+      this.LIKE_BLOG({
+        blog_id: this.blog._id,
+        onSuccess: this.likeBlogSuccess,
+        onFailed: this.likeBlogFailed
+      });
+    },
+    likeBlogSuccess() {
+      this.getBlogById(this.blog._id);
+    },
+    likeBlogFailed(result) {},
     addComment() {
       if (this.formComment.comment.trim().length === 0) {
         this.resetForm();
