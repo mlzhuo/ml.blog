@@ -6,19 +6,33 @@ import {
   SAVE_TOKEN,
   INSERT_LOG,
   EXIT,
-  GET_USER_BY_ID
+  GET_USER_BY_ID,
+  CREATE_CATEGORY,
+  CREATE_TAG,
+  INIT,
 } from "../mutationTypes";
-import { Login, Register, getUserById } from "@/api";
+import { Login, Register, getUserById, createCategory, createTag } from "@/api";
 import md5 from "md5";
 const state = {
   userInfo: {},
   userId: "",
-  token: ""
+  token: "",
 };
 
-const getters = {}
+const getters = {};
 
 const actions = {
+  async [INIT]({ commit, dispatch, state }) {
+    const token = localStorage.getItem("token");
+    const _id = localStorage.getItem("_id");
+    if (token && _id) {
+      commit({ type: SAVE_TOKEN, token });
+      commit({ type: SAVE_USER_ID, user_id: _id });
+      if (Object.keys(state.userInfo).length === 0) {
+        await dispatch(GET_USER_BY_ID, { user_id: _id });
+      }
+    }
+  },
   async [LOGIN](
     { commit, dispatch },
     { username, password, onSuccess, onFailed, onComplete }
@@ -56,11 +70,35 @@ const actions = {
     const result = await getUserById(user_id);
     if (result.state) {
       commit({ type: SAVE_USER_INFO, userInfo: result.data });
-      onSuccess(result.data);
+      onSuccess && onSuccess(result.data);
+    } else {
+      onFailed && onFailed();
+    }
+  },
+  async [CREATE_CATEGORY](
+    { commit, state, dispatch },
+    { user_id, category_name, onSuccess, onFailed }
+  ) {
+    const result = await createCategory({ user_id, category_name });
+    if (result.state) {
+      await dispatch(GET_USER_BY_ID, { user_id });
+      onSuccess(result.message);
     } else {
       onFailed();
     }
-  }
+  },
+  async [CREATE_TAG](
+    { commit, state, dispatch },
+    { user_id, category_id, tag_name, onSuccess, onFailed }
+  ) {
+    const result = await createTag({ user_id, category_id, tag_name });
+    if (result.state) {
+      await dispatch(GET_USER_BY_ID, { user_id });
+      onSuccess(result.message);
+    } else {
+      onFailed();
+    }
+  },
 };
 
 const mutations = {
@@ -77,12 +115,12 @@ const mutations = {
     state.userInfo = {};
     state.userId = "";
     state.token = "";
-  }
+  },
 };
 
 export default {
   state,
   getters,
   actions,
-  mutations
+  mutations,
 };
